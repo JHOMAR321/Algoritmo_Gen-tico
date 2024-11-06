@@ -25,10 +25,15 @@ class Cromosome:
         
 
     def draft_cromosome (self):
-        print("[", end=" ")
+        print("[", end="")
+        i=0
         for gen in self.total_gens:
-            print(gen, end=" ")
-        print("]")
+            if(i<(len(self.total_gens)-1)):
+                print(gen,end=",")
+            else:
+                print(gen, end="")
+            i=i+1
+        print("]",end="")
 
 
 # funcion para generar el conjunto aleatorio de cromosomas
@@ -44,20 +49,27 @@ class Poblation:
             self.total_cromosomes.append(cromosome)
 
     def draft_poblation (self):
+        i=0
+        print("[")
         for cromosome in self.total_cromosomes:
-            print("Cromosoma: ")
-            cromosome.draft_cromosome()
+            if(i<(len(self.total_cromosomes)-1)):
+                cromosome.draft_cromosome()
+                print(",",end="\n")
+            else:
+                cromosome.draft_cromosome()
+            i=i+1
+        print("\n]")    
 
 
 
 #generar conjunto de poblaciones
 def generate_poblations (number_poblation):
-   for i in range(number_poblation):
-       print(f"Poblacion {i+1}:\n")
+   for _ in range(number_poblation):
+       #print(f"Poblacion {i+1}:\n")
        poblation = Poblation(random.randint(1,10))
        poblation.construction_poblation()
        poblation.draft_poblation()
-
+       print("\n")
 generate_poblations(random.randint(1,5))
 
 
