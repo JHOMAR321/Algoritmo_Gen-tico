@@ -3,6 +3,8 @@ import random
 import tkinter as tk
 from tkinter import ttk
 
+from robotv2 import Robot
+
 
 class Maze():
     """ Class to create the maze and the path table
@@ -148,79 +150,154 @@ class Maze():
         self.create_table()
 
     def set_robot_and_goal(self):
-        """ Set the robot's starting position and the goal position
-        """
+        """Configurar las posiciones del robot y objetivo y calcular la ruta"""
         robot_row = int(self.robot_row_entry.get())
         robot_col = int(self.robot_col_entry.get())
         goal_row = int(self.goal_row_entry.get())
         goal_col = int(self.goal_col_entry.get())
 
-        # Store the positions
+        # Almacenar las posiciones
         self.robot_pos = (robot_row, robot_col)
         self.goal_pos = (goal_row, goal_col)
 
-        # Redraw the maze with the updated positions
+        # Instanciar el robot en la posición inicial
+        _robot = Robot(self.robot_pos, self.matrix)
+
+        # Definir el conjunto de rutas con sus listas de movimientos
+        route_set = {
+            'ruta_1': [4, 4, 2, 2],  # Derecha, Derecha, Abajo, Abajo
+            'ruta_2': [2, 2, 4, 4],  # Abajo, Abajo, Derecha, Derecha
+        }
+
+        # Ejecutar cada ruta en el conjunto de rutas
+        for route_name, movements in route_set.items():
+            print(f"Ejecutando {route_name}: {movements}")
+            # Ejecuta la secuencia de movimientos para la ruta actual
+            _robot.get_path(movements)
+            # Actualiza el laberinto con la posición del robot
+            self.update_robot_position(_robot.path)
+            self.create_table()  # Redibuja la tabla para mostrar el laberinto actualizado
+            print(f"Ruta {route_name} completada.\n")
+
+            # Restablece la posición del robot para la siguiente ruta
+            _robot.reset_position()
+
+    def clear_path(self):
+        """ Limpiar la ruta pintada en el canvas """
+        # Redibujar el laberinto sin la ruta anterior
         self.create_canva()
         self.create_maze()
-        self.create_table()
+
+    def clear_pathv2(self):
+        """Limpiar solo la ruta coloreada en el canvas, dejando los obstáculos, robot y objetivo intactos."""
+        cell_size = 20  # Tamaño de cada celda en píxeles
+
+        # Recorre la matriz para encontrar las celdas que forman parte del camino (sin obstáculos, robot o meta)
+        for row in range(self.length_row):
+            for col in range(self.length_column):
+                # Verifica que la celda esté libre (sin obstáculos, robot ni objetivo)
+                if self.matrix[row][col] == 0 and (row, col) != self.robot_pos and (row, col) != self.goal_pos:
+                    x1 = col * cell_size
+                    y1 = row * cell_size
+                    x2 = x1 + cell_size
+                    y2 = y1 + cell_size
+                    # Limpia el rastro (cambiando el color a blanco)
+                    self.canvas.create_rectangle(
+                        x1, y1, x2, y2, fill='white', outline='gray')
+
+    def update_robot_position(self, robot_path):
+        """Actualizar el robot y su ruta en el canvas, dejando un rastro excepto en la celda de inicio."""
+        cell_size = 20  # Tamaño de cada celda en píxeles
+
+        # Limpiar la ruta anterior antes de dibujar una nueva
+        self.clear_path()
+
+        for idx, step in enumerate(robot_path):
+            robot_row, robot_col = step
+            x1 = robot_col * cell_size
+            y1 = robot_row * cell_size
+            x2 = x1 + cell_size
+            y2 = y1 + cell_size
+
+            # Pintar la celda solo si no es la celda inicial
+            if idx != 0:  # Omitir el primer paso, que es la posición inicial
+                self.canvas.create_rectangle(
+                    x1, y1, x2, y2, fill='yellow', outline='gray')  # Color para el rastro
+
+            # Actualizar la tabla si es necesario
+            self.update_row_table()
+
+            # Retraso para visualizar el movimiento
+            self.root.update()
+            self.root.after(500)  # Espera de 500ms entre movimientos
+
+    def mark_cell(self, position, color='lightblue'):
+        """Marcar una celda con un color específico para indicar el rastro"""
+        cell_size = 20
+        row, col = position
+        x1 = col * cell_size
+        y1 = row * cell_size
+        x2 = x1 + cell_size
+        y2 = y1 + cell_size
+        self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline='')
 
     def show_canva(self):
-        """ Show the table with the maze
-        """
-        # Add labels and entries for the matrix dimensions and number of objects
-        label1 = tk.Label(self.root, text="Rows:")
-        label1.grid(row=0, column=0, padx=5, pady=5)
+        """ Show the table with the maze """
+        # Frame for input fields and buttons to make it cleaner
+        input_frame = tk.Frame(self.root)
+        input_frame.grid(row=0, column=0, padx=10, pady=10)
 
-        self.rows_entry = tk.Entry(self.root)
+        # Row and Column inputs for the maze
+        label1 = tk.Label(input_frame, text="Rows:")
+        label1.grid(row=0, column=0, padx=5, pady=5)
+        self.rows_entry = tk.Entry(input_frame)
         self.rows_entry.grid(row=0, column=1, padx=5, pady=5)
         self.rows_entry.insert(0, str(self.length_row))
 
-        label2 = tk.Label(self.root, text="Columns:")
+        label2 = tk.Label(input_frame, text="Columns:")
         label2.grid(row=0, column=2, padx=5, pady=5)
-
-        self.cols_entry = tk.Entry(self.root)
+        self.cols_entry = tk.Entry(input_frame)
         self.cols_entry.grid(row=0, column=3, padx=5, pady=5)
         self.cols_entry.insert(0, str(self.length_column))
 
-        label3 = tk.Label(self.root, text="Objects:")
+        label3 = tk.Label(input_frame, text="Objects:")
         label3.grid(row=1, column=0, padx=5, pady=5)
-
-        self.objects_entry = tk.Entry(self.root)
+        self.objects_entry = tk.Entry(input_frame)
         self.objects_entry.grid(row=1, column=1, padx=5, pady=5)
         self.objects_entry.insert(0, "10")
 
-        # Add the "Generate Maze" button
+        # Generate Maze button
         generate_button = tk.Button(
-            self.root, text="Generate Maze", command=self.generate_maze_and_update)
+            input_frame, text="Generate Maze", command=self.generate_maze_and_update)
         generate_button.grid(row=1, column=2, columnspan=2, pady=5)
 
-        # Labels and entries for robot and goal positions
-        label4 = tk.Label(self.root, text="Robot Start (Row, Column):")
+        # Robot Start and Goal Position inputs
+        label4 = tk.Label(input_frame, text="Robot Start (Row, Column):")
         label4.grid(row=2, column=0, padx=5, pady=5)
 
-        self.robot_row_entry = tk.Entry(self.root)
+        self.robot_row_entry = tk.Entry(input_frame)
         self.robot_row_entry.grid(row=2, column=1, padx=5, pady=5)
         self.robot_row_entry.insert(0, "0")
 
-        self.robot_col_entry = tk.Entry(self.root)
+        self.robot_col_entry = tk.Entry(input_frame)
         self.robot_col_entry.grid(row=2, column=2, padx=5, pady=5)
         self.robot_col_entry.insert(0, "0")
 
-        label5 = tk.Label(self.root, text="Goal Position (Row, Column):")
+        label5 = tk.Label(input_frame, text="Goal Position (Row, Column):")
         label5.grid(row=3, column=0, padx=5, pady=5)
 
-        self.goal_row_entry = tk.Entry(self.root)
+        self.goal_row_entry = tk.Entry(input_frame)
         self.goal_row_entry.grid(row=3, column=1, padx=5, pady=5)
         self.goal_row_entry.insert(0, "4")
 
-        self.goal_col_entry = tk.Entry(self.root)
+        self.goal_col_entry = tk.Entry(input_frame)
         self.goal_col_entry.grid(row=3, column=2, padx=5, pady=5)
         self.goal_col_entry.insert(0, "4")
 
-        # Add the "Set Robot and Goal" button
+        # Set Robot and Goal button
         set_positions_button = tk.Button(
-            self.root, text="Set Robot and Goal", command=self.set_robot_and_goal)
+            input_frame, text="Set Robot and Goal", command=self.set_robot_and_goal)
         set_positions_button.grid(row=3, column=3, pady=5)
 
+        # You can add additional sections for the maze visualization
         self.root.mainloop()
-        
