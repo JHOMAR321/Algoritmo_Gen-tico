@@ -1,5 +1,12 @@
 class Robot:
     def __init__(self, start_position, maze):
+        """
+        Se inicializa el robot en la posición de inicio y el laberinto.
+        El robot comenzará en la posición especificada y tendrá acceso al laberinto.
+
+        :param start_position: Tupla (x, y) con la posición inicial del robot.
+        :param maze: Lista bidimensional que representa el laberinto, donde 0 es un espacio libre y 1 es un obstáculo.
+        """
         self.position = start_position
         self.path = [start_position]
         self.giros = 0
@@ -23,14 +30,11 @@ class Robot:
         # Mover en cada dirección
         if direction == 1 and x > 0 and self.maze[x - 1][y] != 1:  # Arriba
             self.position = (x - 1, y)
-        # Abajo
-        elif direction == 2 and x < self.rows - 1 and self.maze[x + 1][y] != 1:
+        elif direction == 2 and x < self.rows - 1 and self.maze[x + 1][y] != 1: # Abajo
             self.position = (x + 1, y)
-        # Izquierda
-        elif direction == 3 and y > 0 and self.maze[x][y - 1] != 1:
+        elif direction == 3 and y > 0 and self.maze[x][y - 1] != 1: # Izquierda
             self.position = (x, y - 1)
-        # Derecha
-        elif direction == 4 and y < self.cols - 1 and self.maze[x][y + 1] != 1:
+        elif direction == 4 and y < self.cols - 1 and self.maze[x][y + 1] != 1: # Derecha
             self.position = (x, y + 1)
         else:
             self.position = prev_position  # Retrocedemos si hay un choque o fuera de límites
