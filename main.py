@@ -38,6 +38,7 @@ class Main:
         )
         chromosomes = chromosome_creator.generate_chromosomes()
 
+
         # Crear instancia del robot y algoritmo genético
         robot = Robot(maze.matrix, posicion_inicial_robot, posicion_goal_robot)
         algorithm = GeneticAlgorithm(chromosomes=chromosomes)
@@ -90,10 +91,12 @@ class Main:
             # Reemplazar la población actual por la nueva generación
             algorithm.chromosomes = new_population
 
-            # Reiniciar métricas para la siguiente generación
-            for chrom in algorithm.chromosomes:
-                chrom.update(
-                    {"distancia_recorrida": 0, "cantidad_pasos": 0, "colisiones": 0, "giros": 0})
+            # Reiniciar métricas para la nueva generación
+            for chrom in chromosomes:
+                chrom["distancia_recorrida"] = 0
+                chrom["cantidad_pasos"] = 0
+                chrom["colisiones"] = 0
+                chrom["giros"] = 0
 
             print(
                 f"Mejor cromosoma de la generación {generation + 1}: {best_chromosome}")

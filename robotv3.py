@@ -49,50 +49,40 @@ class Robot:
         self.chromosomes = chromosomes
 
     def contar_rutas(self):
-        """ Recorre cada ruta en los cromosomas y calcula las métricas de giros, colisiones, distancia y pasos.
+        """ Recorre cada ruta en los cromosomas y calcula las métricas."""
         
-        Returns:
-            list: Lista de cromosomas con métricas actualizadas.
-        """
         for chromosome in self.chromosomes:
             posicion_actual = self.posicion_inicial_robot
             distancia_recorrida = 0
             cantidad_pasos = 0
             colisiones = 0
             giros = 0
-            direccion_anterior = None
+            direccion_anterior = None   
 
             for movimiento in chromosome["ruta"]:
-                # Calcular nueva posición
                 nueva_posicion = self.mover(posicion_actual, movimiento)
                 fila, columna = nueva_posicion
 
-                # Comprobar si el movimiento es válido dentro de la matriz
+                cantidad_pasos += 1
+
                 if 0 <= fila < len(self.matrix) and 0 <= columna < len(self.matrix[0]):
-                    # Comprobar si hay un obstáculo
                     if self.matrix[fila][columna] == 1:  # Obstáculo
                         colisiones += 1
                     else:
-                        # Movimiento válido, incrementar distancia y pasos
+                        # Movimiento válido
                         distancia_recorrida += 1
-                        cantidad_pasos += 1
-                        posicion_actual = nueva_posicion
-
-                        # Contar giros si cambia la dirección
+                        #  El giro se cuenta solo si el movimiento es válido
                         if direccion_anterior is not None and direccion_anterior != movimiento:
                             giros += 1
-                        direccion_anterior = movimiento
+                        direccion_anterior = movimiento # Actualizar la dirección anterior después de verificar el giro
+                        posicion_actual = nueva_posicion
 
-                        # Verificar si el robot ha alcanzado el objetivo
                         if posicion_actual == self.posicion_goal_robot:
-                            print(
-                                f"¡Objetivo alcanzado en {cantidad_pasos} pasos!")
-                            break  # Terminar el recorrido si llega al objetivo
+                            print(f"¡Objetivo alcanzado en {cantidad_pasos} pasos!")
+                            break
                 else:
-                    # Si el movimiento es fuera de los límites, cuenta como colisión
                     colisiones += 1
 
-            # Actualizar métricas en el cromosoma
             chromosome["distancia_recorrida"] = distancia_recorrida
             chromosome["cantidad_pasos"] = cantidad_pasos
             chromosome["colisiones"] = colisiones
@@ -126,3 +116,4 @@ class Robot:
     def reset_position(self):
         """Reinicia la posición del robot a su posición inicial y limpia la ruta."""
         self.path = [self.posicion_inicial_robot]  # Reinicia la ruta al punto de partida
+        return self.chromosomes
