@@ -49,13 +49,14 @@ class Robot:
 
     def contar_rutas(self):
         """ Recorre cada ruta en los cromosomas y calcula las métricas."""
+        
         for chromosome in self.chromosomes:
             posicion_actual = self.posicion_inicial_robot
             distancia_recorrida = 0
             cantidad_pasos = 0
             colisiones = 0
             giros = 0
-            direccion_anterior = None
+            direccion_anterior = None   
 
             for movimiento in chromosome["ruta"]:
                 nueva_posicion = self.mover(posicion_actual, movimiento)
