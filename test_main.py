@@ -1,28 +1,19 @@
-import copy
+from chromosome_v3 import Chromosome
+from genetic_algorithm_v2 import GeneticAlgorithm
 
-# Importacion de las clases Chromosome y Algorithm
-from chromosome import Chromosome
-from algorithm import Algorithm
-
-# Ejecución del algoritmo
 if __name__ == "__main__":
-    chromosome_instance = Chromosome(n_individuals=4)  # Población inicial de 4 individuos
-    algorithm = Algorithm(chromosome_instance.population)
+    # Instancia de Chromosome para generar la población inicial
+    chromosome_instance = Chromosome(n_individuals=4) # individuos utilizados: 4
 
-    #Guardamos la población inicial con deepcopy para evitar cambios por referencia
-    initial_population = [copy.deepcopy(ind) for ind in algorithm.population]
+    # Crear una instancia de GeneticAlgorithm pasando la instancia de Chromosome
+    genetic_algorithm = GeneticAlgorithm(chromosome_instance, mutation_rate=0.3)
 
-    # Calculamos fitness de la población inicial
-    algorithm.fitness()
+    # Ejecutar las distintas etapas del algoritmo genético
+    genetic_algorithm.mostrar_cromosomas()    # Mostrar cromosomas originales
+    genetic_algorithm.fitness()               # Calcular el fitness de cada cromosoma
+    genetic_algorithm.selection()             # Realizar selección
+    genetic_algorithm.apply_crossover()       # Realizar crossover
+    genetic_algorithm.apply_mutation()        # Aplicar mutación
 
-    # Selección de los individuos
-    selected = algorithm.selection()
-
-    # Cruce (Crossover) para generar nueva población
-    crossover_population = algorithm.crossover(selected)
-
-    #Mutación en la nueva población
-    mutated_population = algorithm.mutation(crossover_population)
-
-    # Mostrando la tabla de resultados
-    algorithm.display_table(initial_population, selected, crossover_population, mutated_population)
+    # Mostrar los resultados en formato de tabla
+    genetic_algorithm.mostrar_tabla()
