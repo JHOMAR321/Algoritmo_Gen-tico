@@ -1,5 +1,7 @@
 """ Aquí se realiza la lógica para evaluar la mejor ruta en relación al algoritmo genético """
 import random
+import pandas as pd
+from openpyxl.styles import Font, Alignment, PatternFill
 
 
 class GeneticAlgorithm:
@@ -15,34 +17,69 @@ class GeneticAlgorithm:
         """
         self.chromosomes = chromosomes
         self.mutation_rate = mutation_rate
+        self.chromosomes_excel = None
 
-    def fitness(self, chromosome):
+        self.data = []
+
+    def fitness(self, chromosome, min_max_values):
         """
-        Evalúa el fitness de un cromosoma en función de los factores como distancia, colisiones y giros.
-        
+        Calcula el valor de fitness basado en las métricas del cromosoma.
+
         Args:
-            chromosome (dict): Un cromosoma con ruta y métricas de evaluación.
+            chromosome (dict): Cromosoma con métricas.
+            min_max_values (dict): Valores mínimos y máximos de la generación.
 
         Returns:
-            float: Valor de fitness, donde un valor mayor indica una mejor ruta.
+            dict: Diccionario con los valores de factibilidad y fitness.
         """
-        # Fórmula de fitness, donde los mejores resultados tienen menos colisiones y distancia
-        # Ajuste de pesos para cada parámetro en la fórmula de fitness
-        weight_distance = 1.0
-        weight_steps = 0.5
-        weight_collisions = 2.0
-        weight_turns = 1.5
+        s_min, s_max = min_max_values["s_min"], min_max_values["s_max"]
+        l_min, l_max = min_max_values["l_min"], min_max_values["l_max"]
+        t_min, t_max = min_max_values["t_min"], min_max_values["t_max"]
 
-        # Fitness inverso, penalizando colisiones y giros
-        fitness_value = 1 / (
-            (weight_distance * chromosome["distancia_recorrida"]) +
-            (weight_steps * chromosome["cantidad_pasos"]) +
-            (weight_collisions * chromosome["colisiones"]) +
-            (weight_turns * chromosome["giros"] + 1)
+        # Pesos para cada factor
+        weight_feasibility = 1.0
+        weight_length = 1.0
+        weight_turns = 1.0
+
+        # Calcular factores
+        feasibility_factor = 1 - \
+            ((chromosome["colisiones"] - s_min) / (s_max - s_min + 1))
+        length_factor = 1 - \
+            ((chromosome["distancia_recorrida"] - l_min) / (l_max - l_min + 1))
+        turns_factor = 1 - \
+            ((chromosome["giros"] - t_min) / (t_max - t_min + 1))
+
+        # Fitness final
+        fitness_value = (
+            weight_feasibility * feasibility_factor +
+            weight_length * length_factor +
+            weight_turns * turns_factor
         )
 
-        return fitness_value
-    
+        # Crear un diccionario con los datos del cromosoma
+        chromo_data = {
+            "ruta": chromosome["ruta"],
+            "distancia_recorrida": chromosome["distancia_recorrida"],
+            "cantidad_pasos": chromosome["cantidad_pasos"],
+            "colisiones": chromosome["colisiones"],
+            "giros": chromosome["giros"],
+            "feasibility_factor": feasibility_factor,
+            "length_factor": length_factor,
+            "turns_factor": turns_factor,
+            "fitness": fitness_value
+        }
+
+        # Añadir los datos del cromosoma a la lista
+        self.data.append(chromo_data)
+
+        # Retornar los factores calculados sin modificar el cromosoma
+        return {
+            "feasibility_factor": feasibility_factor,
+            "length_factor": length_factor,
+            "turns_factor": turns_factor,
+            "fitness": fitness_value
+        }
+
     def evaluate_population(self, result):
         """
         Evalúa todos los cromosomas de la población y actualiza sus métricas.
@@ -64,20 +101,70 @@ class GeneticAlgorithm:
         Returns:
             dict: El cromosoma con el mejor fitness.
         """
-        # Ordena la población según el valor de fitness
-        best_chromosome = max(self.chromosomes, key=self.fitness)
+        # Calcular los valores min_max de la generación
+        min_max_values = self.calculate_generation_min_max(self.chromosomes)
+
+        # Ordena la población según el valor de fitness, pasando los valores min_max
+        best_chromosome = max(self.chromosomes, key=lambda chrom: self.fitness(
+            chrom, min_max_values)["fitness"])
+
         return best_chromosome
+
+    def calculate_generation_min_max(self, chromosomes):
+        """
+        Calcula los valores mínimos y máximos de distancia, pasos, colisiones y giros en la generación.
+        
+        Args:
+            chromosomes (list of dict): Lista de cromosomas de una generación.
+        
+        Returns:
+            dict: Diccionario con los valores mínimos y máximos.
+        """
+
+        print(chromosomes)
+
+        # Comprobar que cada cromosoma es un diccionario y tiene las claves necesarias
+        for chrom in chromosomes:
+            if not isinstance(chrom, dict):
+                print(f"Advertencia: El cromosoma no es un diccionario: {chrom}")
+            if "distancia_recorrida" not in chrom or "cantidad_pasos" not in chrom or "colisiones" not in chrom or "giros" not in chrom:
+                print(f"Advertencia: Cromosoma incompleto: {chrom}")
+
+        # Ahora procesamos los cromosomas
+        distances = [chrom["distancia_recorrida"] for chrom in chromosomes]
+        steps = [chrom["cantidad_pasos"] for chrom in chromosomes]
+        collisions = [chrom["colisiones"] for chrom in chromosomes]
+        turns = [chrom["giros"] for chrom in chromosomes]
+
+        return {
+            "s_min": min(collisions), "s_max": max(collisions),
+            "l_min": min(distances), "l_max": max(distances),
+            "t_min": min(turns), "t_max": max(turns)
+        }
+
 
     def select_chromosomes(self):
         """
         Selecciona dos cromosomas con el mejor fitness para el crossover.
-        
+
         Returns:
             tuple: Dos cromosomas seleccionados para la reproducción.
         """
+        self.data = []
+        # Calcula el fitness para cada cromosoma y agrega esta información
+        for chromo in self.chromosomes:
+            min_max = self.calculate_generation_min_max(chromo)
+            chromo['fitness'] = self.fitness(chromo, min_max)["fitness"]
+
         # Ordena la población de acuerdo al fitness
         sorted_chromosomes = sorted(
-            self.chromosomes, key=lambda chrom: self.fitness(chrom), reverse=True)
+            self.chromosomes, key=lambda chrom: chrom['fitness'], reverse=True)
+
+        # Crear un DataFrame de pandas
+        df = pd.DataFrame(self.data)
+
+        # Guardar el DataFrame en un archivo Excel
+        df.to_excel("chromosomes_with_fitness.xlsx", index=False)
 
         # Selección de los dos mejores
         return sorted_chromosomes[0], sorted_chromosomes[1]

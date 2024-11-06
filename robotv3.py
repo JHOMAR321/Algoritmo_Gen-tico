@@ -17,6 +17,7 @@ class Robot:
         self.posicion_inicial_robot = posicion_inicial_robot
         self.posicion_goal_robot = posicion_goal_robot
         self.chromosomes = []
+        self.path = None
 
     def mover(self, posicion, movimiento):
         """ Mueve el robot en la matriz según el movimiento especificado.
@@ -98,3 +99,30 @@ class Robot:
             chromosome["giros"] = giros
 
         return self.chromosomes
+
+    def get_path(self, movements):
+        """Recorre la ruta definida por los movimientos y actualiza la posición del robot.
+
+        Args:
+            movements (list): Lista de movimientos que indican la ruta a seguir.
+        """
+        self.path = [self.posicion_inicial_robot]  # Reinicia el camino para cada ruta
+        posicion_actual = self.posicion_inicial_robot
+        
+        for movimiento in movements:
+            nueva_posicion = self.mover(posicion_actual, movimiento)
+            fila, columna = nueva_posicion
+
+            # Comprueba si la nueva posición está dentro de los límites de la matriz
+            if 0 <= fila < len(self.matrix) and 0 <= columna < len(self.matrix[0]):
+                if self.matrix[fila][columna] == 0:  # Verifica que no haya un obstáculo
+                    posicion_actual = nueva_posicion
+                    self.path.append(posicion_actual)  # Agrega la nueva posición a la ruta
+
+            # Detenerse si se alcanza el objetivo
+            if posicion_actual == self.posicion_goal_robot:
+                break
+
+    def reset_position(self):
+        """Reinicia la posición del robot a su posición inicial y limpia la ruta."""
+        self.path = [self.posicion_inicial_robot]  # Reinicia la ruta al punto de partida
