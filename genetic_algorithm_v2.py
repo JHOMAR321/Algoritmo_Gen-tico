@@ -122,12 +122,12 @@ class GeneticAlgorithm:
     def mostrar_tabla(self):
         """Muestra una tabla de resultados con los cromosomas, selección, crossover, mutación y fitness."""
         print("\nTabla de Resultados:")
-        print(f"{'Cromosomas':<30}{'Selección':<30}{'Crossover':<30}{'Mutación':<30}{'Fitness':<15}")
+        print(f"{'Cromosomas':<30}{'Fitness':<20}{'Selección':<30}{'Crossover':<30}{'Mutación':<30}")
         print("=" * 135)
         for i in range(len(self.selection_population)):
             cromosomas = str(self.selection_population[i])
             seleccion = str(self.selection_population[i]) if i < len(self.selection_population) else ""
+            fitness = f"{self.fitness_scores[i]:.2f}" if i < len(self.fitness_scores) else ""
             crossover = str(self.crossover_population[i]) if i < len(self.crossover_population) else ""
             mutacion = str(self.mutated_population[i]) if i < len(self.mutated_population) else ""
-            fitness = str(self.fitness_scores[i]) if i < len(self.fitness_scores) else ""
-            print(f"{cromosomas:<30}{seleccion:<30}{crossover:<30}{mutacion:<30}{fitness:<15}")
+            print(f"{cromosomas:<30}{fitness:<20}{seleccion:<30}{crossover:<30}{mutacion:<30}")
