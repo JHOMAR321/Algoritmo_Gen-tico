@@ -52,10 +52,20 @@ class GeneticAlgorithm:
             print(individual)
 
     def selection(self):
-        """Realiza el proceso de selección (en este caso, selecciona sin cambios)."""
-        print("\nPoblación después de la selección (sin cambios):")
+        """Realiza el proceso de selección tomando los dos cromosomas 
+        con mayor valor de fitness."""
+        # Encuentra los índices de los dos cromosomas con mayor fitness
+        sorted_indices = sorted(range(len(self.fitness_scores)), key=lambda i: self.fitness_scores[i], reverse=True)
+        top_two_indices = sorted_indices[:2]  # Los índices de los dos cromosomas con mayor fitness
+
+        # Guarda estos dos cromosomas en la población seleccionada
+        self.selection_population = [self.population[i] for i in top_two_indices]
+        self.fitness_scores_selection = [self.fitness_scores[i] for i in top_two_indices]
+
+        print("\nPoblación después de la selección (solo los dos con mayor fitness):")
         for individual in self.selection_population:
             print(individual)
+
 
     def crossover(self, parent1, parent2):
         """
@@ -77,21 +87,20 @@ class GeneticAlgorithm:
         return child1, child2
 
     def apply_crossover(self):
-        """
-         Aplica el crossover a la población seleccionada y genera una nueva población.
-        """
-        new_population = []
-        for i in range(0, len(self.selection_population) - 1, 2):
-            parent1 = self.selection_population[i]
-            parent2 = self.selection_population[i + 1]
+        """Aplica el crossover a los cromosomas seleccionados y genera una nueva población."""
+    # Si tenemos dos cromosomas en selection_population, aplicamos el crossover entre ellos
+        if len(self.selection_population) == 2:
+            parent1 = self.selection_population[0]
+            parent2 = self.selection_population[1]
             child1, child2 = self.crossover(parent1, parent2)
-            new_population.extend([child1, child2])
-        if len(self.selection_population) % 2 != 0:
-            new_population.append(self.selection_population[-1])
-        self.crossover_population = new_population.copy()
+            self.crossover_population = [child1, child2]
+        else:
+            # Si hay algún problema, simplemente copiamos la población seleccionada
+            self.crossover_population = self.selection_population.copy()
+
         print("\nPoblación después del crossover:")
         for individual in self.crossover_population:
-            print(individual)
+            print(individual)  
 
     def mutation(self, individual):
         """
@@ -109,25 +118,38 @@ class GeneticAlgorithm:
 
     def apply_mutation(self):
         """Aplica mutaciones a la población después del crossover."""
-        mutated_population = []
+        self.mutated_population = []
         for individual in self.crossover_population:
             mutated_individual = individual[:]
             self.mutation(mutated_individual)
-            mutated_population.append(mutated_individual)
-        self.mutated_population = mutated_population.copy()
+            self.mutated_population.append(mutated_individual)
+
         print("\nPoblación después de la mutación:")
         for individual in self.mutated_population:
             print(individual)
-
+    
+    
     def mostrar_tabla(self):
         """Muestra una tabla de resultados con los cromosomas, selección, crossover, mutación y fitness."""
         print("\nTabla de Resultados:")
         print(f"{'Cromosomas':<30}{'Fitness':<20}{'Selección':<30}{'Crossover':<30}{'Mutación':<30}")
         print("=" * 135)
-        for i in range(len(self.selection_population)):
-            cromosomas = str(self.selection_population[i])
-            seleccion = str(self.selection_population[i]) if i < len(self.selection_population) else ""
+    
+        max_fitness = max(self.fitness_scores)  # Encuentra el valor máximo de fitness
+
+        for i in range(len(self.population)):
+            cromosomas = str(self.population[i])
             fitness = f"{self.fitness_scores[i]:.2f}" if i < len(self.fitness_scores) else ""
+            seleccion = str(self.selection_population[i]) if i < len(self.selection_population) else ""
             crossover = str(self.crossover_population[i]) if i < len(self.crossover_population) else ""
             mutacion = str(self.mutated_population[i]) if i < len(self.mutated_population) else ""
-            print(f"{cromosomas:<30}{fitness:<20}{seleccion:<30}{crossover:<30}{mutacion:<30}")
+
+            # Resalta los cromosomas con el valor de fitness máximo en verde
+            if self.fitness_scores[i] == max_fitness:
+                print(f"\033[92m{cromosomas:<30}{fitness:<20}{seleccion:<30}{crossover:<30}{mutacion:<30}\033[0m")
+            else:
+                print(f"{cromosomas:<30}{fitness:<20}{seleccion:<30}{crossover:<30}{mutacion:<30}")
+
+        print("\nPoblación seleccionada (solo los dos con mayor fitness):")
+        for individual in self.selection_population:
+            print(f"{individual}")
