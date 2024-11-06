@@ -4,12 +4,14 @@
 # genes que componen son aleatorios 
 # maxima cantidad son el maximo de pasos
 
-import random 
+import random #libreria para generacion aleatoria
 
+# funcion para obtener el valor maximo de genes y cromosomas posibles a generar por la función random
 def max_number_gen_cromosome (x_i,y_i,x_u,y_u):
     max_number = abs(x_u-x_i) + abs(y_u-y_i)
     return max_number
 
+# funcion para generar cromosomas aleatorios
 class Cromosome:
     # Constructor
     def __init__(self, number_gens):
@@ -29,7 +31,7 @@ class Cromosome:
         print("]")
 
 
-
+# funcion para generar el conjunto aleatorio de cromosomas
 class Poblation:
     def __init__(self, number_cromosomes):
         self.number_cromosomes = number_cromosomes
@@ -47,7 +49,7 @@ class Poblation:
             cromosome.draft_cromosome()
 
 
-
-poblacion = Poblation(random.randint(1,5))
-poblacion.construction_poblation()
-poblacion.draft_poblation()
+#invocacion de los objetos
+poblacion = Poblation(random.randint(1,5)) # conjunto de cromosomas
+poblacion.construction_poblation() #construccion de los cromosomas y de sus respectivos genes
+poblacion.draft_poblation() # impresion de los cromosomas y sus genes
