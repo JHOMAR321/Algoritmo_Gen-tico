@@ -36,6 +36,7 @@ class Main:
         )
         chromosomes = chromosome_creator.generate_chromosomes()
 
+
         # Crear instancia del robot y algoritmo genético
         robot = Robot(maze.matrix, posicion_inicial_robot, posicion_goal_robot)
         algorithm = GeneticAlgorithm(chromosomes=chromosomes)
@@ -78,7 +79,7 @@ class Main:
             algorithm.chromosomes = new_population
 
             # Reiniciar métricas para la nueva generación
-            for chrom in algorithm.chromosomes:
+            for chrom in chromosomes:
                 chrom["distancia_recorrida"] = 0
                 chrom["cantidad_pasos"] = 0
                 chrom["colisiones"] = 0
