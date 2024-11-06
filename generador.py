@@ -4,30 +4,11 @@
 # genes que componen son aleatorios 
 # maxima cantidad son el maximo de pasos
 
-import random
+import random 
 
 def max_number_gen_cromosome (x_i,y_i,x_u,y_u):
     max_number = abs(x_u-x_i) + abs(y_u-y_i)
     return max_number
-
-#number_cromosome = random.randint(1,5) #cambiar el 5 por el valor que devuelva max_number
-
-#cromosomes = []
-
-# llenado de cromosomas 
-#def fill_cromosomes():
- #   for _ in range(number_cromosome):
-  #      cromosome = []
-   #     for _ in range(random.randint(1,10)): #cambiar el 10 por el valor max_number
-    #        cromosome.append(random.randint(1,4)) # restringido a la cantidad de pasos
-     #   cromosomes.append(cromosome)
-
-
-#def print_cromosomes():
- #   for i in range(len(cromosomes)):
-  #      print(f"Cromosoma {i+1}: {cromosomes[i]}\n")
-
-#-------------------------------------------------------------------------------------------------------------------------------#
 
 class Cromosome:
     # Constructor
@@ -66,8 +47,6 @@ class Poblation:
             cromosome.draft_cromosome()
 
 
-#fill_cromosomes()
-#print_cromosomes()
 
 poblacion = Poblation(random.randint(1,5))
 poblacion.construction_poblation()
