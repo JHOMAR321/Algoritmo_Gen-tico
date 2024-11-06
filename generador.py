@@ -57,18 +57,24 @@ class Poblation:
         print("\n]")    
 
 
+class MultiPoblation:
+    def __init__(self, number_poblation):
+        self.number_poblation = number_poblation
 
 #generar conjunto de poblaciones
-def generate_poblations (number_poblation):
-   for _ in range(number_poblation):
-       #print(f"Poblacion {i+1}:\n")
-       poblation = Poblation(random.randint(1,10))
-       poblation.construction_poblation()
-       poblation.draft_poblation()
-       print("\n")
-generate_poblations(random.randint(1,5))
+    def generate_poblations (self):
+        for _ in range(self.number_poblation):
+            poblation = Poblation(random.randint(1,10))
+            poblation.construction_poblation()
+            poblation.draft_poblation()
+        print("\n")
 
 
+
+#Pruebas de ejecucion
+poblaciones = MultiPoblation(5)
+poblaciones.generate_poblations()
+#generate_poblations(random.randint(1,5))
 #invocacion de la poblacion y su metodo de construccion
 #poblacion = Poblation(random.randint(1,10)) # conjunto de cromosomas 
 #poblacion.construction_poblation() #construccion de los cromosomas y de sus respectivos genes
