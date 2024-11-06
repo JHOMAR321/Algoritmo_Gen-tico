@@ -6,10 +6,6 @@
 
 import random #libreria para generacion aleatoria
 
-# funcion para obtener el valor maximo de genes y cromosomas posibles a generar por la función random
-def max_number_gen_cromosome (x_i,y_i,x_u,y_u):
-    max_number = abs(x_u-x_i) + abs(y_u-y_i)
-    return max_number
 
 # funcion para generar cromosomas aleatorios
 class Cromosome:
