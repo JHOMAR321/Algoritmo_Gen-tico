@@ -39,7 +39,7 @@ class Poblation:
     
     def construction_poblation (self):
         for _ in range(self.number_cromosomes):
-            cromosome = Cromosome(random.randint(1,10))
+            cromosome = Cromosome(random.randint(1,6))
             cromosome.construction_cromosome()
             self.total_cromosomes.append(cromosome)
 
@@ -49,7 +49,20 @@ class Poblation:
             cromosome.draft_cromosome()
 
 
-#invocacion de los objetos
-poblacion = Poblation(random.randint(1,5)) # conjunto de cromosomas
-poblacion.construction_poblation() #construccion de los cromosomas y de sus respectivos genes
-poblacion.draft_poblation() # impresion de los cromosomas y sus genes
+
+#generar conjunto de poblaciones
+def generate_poblations (number_poblation):
+   for i in range(number_poblation):
+       print(f"Poblacion {i+1}:\n")
+       poblation = Poblation(random.randint(1,10))
+       poblation.construction_poblation()
+       poblation.draft_poblation()
+
+generate_poblations(random.randint(1,5))
+
+
+#invocacion de la poblacion y su metodo de construccion
+#poblacion = Poblation(random.randint(1,10)) # conjunto de cromosomas 
+#poblacion.construction_poblation() #construccion de los cromosomas y de sus respectivos genes
+#poblacion.draft_poblation() # impresion de los cromosomas y sus genes
+
