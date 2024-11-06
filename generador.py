@@ -72,8 +72,8 @@ class MultiPoblation:
 
 
 #Pruebas de ejecucion
-poblaciones = MultiPoblation(5)
-poblaciones.generate_poblations(10,6)
+#poblaciones = MultiPoblation(5)
+#poblaciones.generate_poblations(10,6)
 #generate_poblations(random.randint(1,5))
 #invocacion de la poblacion y su metodo de construccion
 #poblacion = Poblation(random.randint(1,10)) # conjunto de cromosomas 
