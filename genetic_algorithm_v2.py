@@ -18,11 +18,11 @@ class GeneticAlgorithm:
         """
         Calcula el fitness para cada individuo de la población usando factores ponderados
         de colisiones, pasos y distancia.
-        """
-        #wf : factor de factibilidad
-        #wl : factor de longitud
-        #wd : factor de distancia al destino
         
+        wf : factor de factibilidad
+        wl : factor de longitud
+        wd : factor de distancia al destino
+        """
         # Calcula el fitness para cada individuo
         self.fitness_scores = []
         for individual in self.population:
