@@ -1,9 +1,12 @@
 """ File for the maze canvas """
 import random
+import os
 import tkinter as tk
 from tkinter import ttk
 
-from robotv2 import Robot
+from robotv3 import Robot
+from genetic_algorithm import GeneticAlgorithm
+from chromosomev2 import Chromosome
 
 
 class Maze():
@@ -150,7 +153,9 @@ class Maze():
         self.create_table()
 
     def set_robot_and_goal(self):
-        """Configurar las posiciones del robot y objetivo y calcular la ruta"""
+        """Configura las posiciones del robot y objetivo, y ejecuta el algoritmo genético mientras muestra el progreso."""
+
+        # Obtener posiciones del robot y objetivo desde la interfaz
         robot_row = int(self.robot_row_entry.get())
         robot_col = int(self.robot_col_entry.get())
         goal_row = int(self.goal_row_entry.get())
@@ -160,27 +165,103 @@ class Maze():
         self.robot_pos = (robot_row, robot_col)
         self.goal_pos = (goal_row, goal_col)
 
-        # Instanciar el robot en la posición inicial
-        _robot = Robot(self.robot_pos, self.matrix)
+        # Crear cromosomas iniciales
+        chromosome_creator = Chromosome(
+            length_row=self.length_row,
+            length_column=self.length_column,
+            posicion_robot=self.robot_pos,
+            posicion_goal=self.goal_pos,
+            num_chromosomes=10
+        )
+        chromosomes = chromosome_creator.generate_chromosomes()
 
-        # Definir el conjunto de rutas con sus listas de movimientos
-        route_set = {
-            'ruta_1': [4, 4, 2, 2],  # Derecha, Derecha, Abajo, Abajo
-            'ruta_2': [2, 2, 4, 4],  # Abajo, Abajo, Derecha, Derecha
-        }
+        # Crear instancia del robot y algoritmo genético
+        robot = Robot(self.matrix, self.robot_pos, self.goal_pos)
+        algorithm = GeneticAlgorithm(chromosomes=chromosomes)
 
-        # Ejecutar cada ruta en el conjunto de rutas
-        for route_name, movements in route_set.items():
-            print(f"Ejecutando {route_name}: {movements}")
-            # Ejecuta la secuencia de movimientos para la ruta actual
-            _robot.get_path(movements)
-            # Actualiza el laberinto con la posición del robot
-            self.update_robot_position(_robot.path)
-            self.create_table()  # Redibuja la tabla para mostrar el laberinto actualizado
-            print(f"Ruta {route_name} completada.\n")
+        # Limpiar archivo de log para esta ejecución
+        with open("generaciones_log.txt", "w") as file:
+            file.write("")
 
-            # Restablece la posición del robot para la siguiente ruta
-            _robot.reset_position()
+        # Ejecutar el algoritmo genético
+        generations = 100
+        for generation in range(generations):
+            #print(f"Generación {generation + 1}")
+
+            # Actualizar métricas de cada cromosoma con el robot
+            robot.recibir_chromosomas(algorithm.chromosomes)
+            result = robot.contar_rutas()
+
+            # Evaluar la población actual
+            algorithm.evaluate_population(result)
+
+            # Registrar los datos de la generación actual en el archivo
+            with open("generaciones_log.txt", "a") as file:
+                file.write(f"Generación {generation + 1}:\n")
+                file.write(f"{result}\n\n")
+
+            # Obtener el mejor cromosoma y verificar si es óptimo
+            best_chromosome = algorithm.get_best_chromosome()
+            if best_chromosome["distancia_recorrida"] == len(best_chromosome["ruta"]):
+                print("¡Ruta óptima encontrada!")
+                break
+
+            # Dibujar cada ruta en la interfaz gráfica
+            for route in result:
+                # Adapt based on actual structure
+                route_name = route.get("name", "Unknown Route")
+                # Get movements from the route data
+                movements = route.get("ruta", [])
+
+                # print(f"Ejecutando {route_name}: {movements}")
+                robot.get_path(movements)
+                self.update_robot_position(robot.path)
+                self.create_table()  # Actualizar laberinto en la interfaz
+                #print(f"Ruta {route_name} completada.\n")
+
+                # Restablecer la posición del robot para la siguiente ruta
+                robot.reset_position()
+
+            # Generar nueva población mediante selección, cruce y mutación
+            new_population = []
+            for _ in range(len(algorithm.chromosomes) // 2):
+                parent1, parent2 = algorithm.select_chromosomes()
+                child1 = algorithm.crossover(parent1, parent2)
+                child2 = algorithm.crossover(parent2, parent1)
+                child1 = algorithm.mutate(child1)
+                child2 = algorithm.mutate(child2)
+                new_population.extend([child1, child2])
+
+            # Reemplazar población antigua con nueva generación
+            algorithm.chromosomes = new_population
+
+            # Reiniciar métricas para la nueva generación
+            for chrom in chromosomes:
+                chrom.update(
+                    {"distancia_recorrida": 0, "cantidad_pasos": 0, "colisiones": 0, "giros": 0})
+
+            print(
+                f"Mejor cromosoma de la generación {generation + 1}: {best_chromosome}")
+
+        print("Algoritmo completado.")
+        print("Mejor ruta encontrada:", best_chromosome)
+
+        print("Algoritmo completado.")
+        print("Mejor ruta encontrada:", best_chromosome)
+
+        # Pintar la mejor ruta encontrada en el laberinto
+        # Asegúrate de que best_chromosome contiene la ruta de la mejor solución
+        best_route = best_chromosome["ruta"]
+        print(f"Ejecutando la mejor ruta encontrada: {best_route}")
+
+        # Usar la mejor ruta encontrada para mover al robot y actualizar la interfaz
+        robot.get_path(best_route)
+        self.update_robot_position(robot.path)
+        self.create_table()  # Actualizar laberinto en la interfaz
+        print("Mejor ruta completada.\n")
+
+        # Restablecer la posición del robot para la siguiente ruta
+        robot.reset_position()
 
     def clear_path(self):
         """ Limpiar la ruta pintada en el canvas """
@@ -229,7 +310,7 @@ class Maze():
 
             # Retraso para visualizar el movimiento
             self.root.update()
-            self.root.after(500)  # Espera de 500ms entre movimientos
+            self.root.after(1)  # Espera de 500ms entre movimientos
 
     def mark_cell(self, position, color='lightblue'):
         """Marcar una celda con un color específico para indicar el rastro"""
