@@ -2,7 +2,7 @@ import random
 
 # Clase Chromosome: genera individuos y población inicial
 class Chromosome:
-    def __init__(self, n_individuals=2):
+    def __init__(self, n_individuals=4):
         self.n_individuals = n_individuals
         self.population = self.create_population()
 
