@@ -113,29 +113,34 @@ class GeneticAlgorithm:
     def calculate_generation_min_max(self, chromosomes):
         """
         Calcula los valores mínimos y máximos de distancia, pasos, colisiones y giros en la generación.
-        
+
         Args:
             chromosomes (list of dict): Lista de cromosomas de una generación.
-        
+
         Returns:
             dict: Diccionario con los valores mínimos y máximos.
         """
 
-        print(chromosomes)
+        # Verificar que chromosomes sea una lista de diccionarios
+        if not isinstance(chromosomes, list):
+            print("Error: chromosomes debe ser una lista de diccionarios")
+            return {}
 
-        # Comprobar que cada cromosoma es un diccionario y tiene las claves necesarias
+        # Asegurarse de que todos los diccionarios tengan las claves necesarias
+        required_keys = ['distancia_recorrida',
+                        'cantidad_pasos', 'colisiones', 'giros']
         for chrom in chromosomes:
-            if not isinstance(chrom, dict):
-                print(f"Advertencia: El cromosoma no es un diccionario: {chrom}")
-            if "distancia_recorrida" not in chrom or "cantidad_pasos" not in chrom or "colisiones" not in chrom or "giros" not in chrom:
-                print(f"Advertencia: Cromosoma incompleto: {chrom}")
+            if not all(key in chrom for key in required_keys):
+                print("Error: El cromosoma no tiene todas las claves necesarias.")
+                return {}
 
-        # Ahora procesamos los cromosomas
+        # Procesar las métricas de los cromosomas
         distances = [chrom["distancia_recorrida"] for chrom in chromosomes]
         steps = [chrom["cantidad_pasos"] for chrom in chromosomes]
         collisions = [chrom["colisiones"] for chrom in chromosomes]
         turns = [chrom["giros"] for chrom in chromosomes]
 
+        # Calcular valores min y max
         return {
             "s_min": min(collisions), "s_max": max(collisions),
             "l_min": min(distances), "l_max": max(distances),
@@ -152,8 +157,8 @@ class GeneticAlgorithm:
         """
         self.data = []
         # Calcula el fitness para cada cromosoma y agrega esta información
+        min_max = self.calculate_generation_min_max(self.chromosomes)
         for chromo in self.chromosomes:
-            min_max = self.calculate_generation_min_max(chromo)
             chromo['fitness'] = self.fitness(chromo, min_max)["fitness"]
 
         # Ordena la población de acuerdo al fitness

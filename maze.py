@@ -186,7 +186,7 @@ class Maze():
         # Ejecutar el algoritmo genético
         generations = 100
         for generation in range(generations):
-            print(f"Generación {generation + 1}")
+            #print(f"Generación {generation + 1}")
 
             # Actualizar métricas de cada cromosoma con el robot
             robot.recibir_chromosomas(algorithm.chromosomes)
@@ -208,14 +208,16 @@ class Maze():
 
             # Dibujar cada ruta en la interfaz gráfica
             for route in result:
-                route_name = route.get("name", "Unknown Route")  # Adapt based on actual structure
-                movements = route.get("ruta", [])  # Get movements from the route data
+                # Adapt based on actual structure
+                route_name = route.get("name", "Unknown Route")
+                # Get movements from the route data
+                movements = route.get("ruta", [])
 
-                print(f"Ejecutando {route_name}: {movements}")
+                # print(f"Ejecutando {route_name}: {movements}")
                 robot.get_path(movements)
                 self.update_robot_position(robot.path)
                 self.create_table()  # Actualizar laberinto en la interfaz
-                print(f"Ruta {route_name} completada.\n")
+                #print(f"Ruta {route_name} completada.\n")
 
                 # Restablecer la posición del robot para la siguiente ruta
                 robot.reset_position()
@@ -234,15 +236,32 @@ class Maze():
             algorithm.chromosomes = new_population
 
             # Reiniciar métricas para la nueva generación
-            for chrom in algorithm.chromosomes:
-                chrom.update({"distancia_recorrida": 0, "cantidad_pasos": 0, "colisiones": 0, "giros": 0})
+            for chrom in chromosomes:
+                chrom.update(
+                    {"distancia_recorrida": 0, "cantidad_pasos": 0, "colisiones": 0, "giros": 0})
 
-            print(f"Mejor cromosoma de la generación {generation + 1}: {best_chromosome}")
+            print(
+                f"Mejor cromosoma de la generación {generation + 1}: {best_chromosome}")
 
         print("Algoritmo completado.")
         print("Mejor ruta encontrada:", best_chromosome)
 
+        print("Algoritmo completado.")
+        print("Mejor ruta encontrada:", best_chromosome)
 
+        # Pintar la mejor ruta encontrada en el laberinto
+        # Asegúrate de que best_chromosome contiene la ruta de la mejor solución
+        best_route = best_chromosome["ruta"]
+        print(f"Ejecutando la mejor ruta encontrada: {best_route}")
+
+        # Usar la mejor ruta encontrada para mover al robot y actualizar la interfaz
+        robot.get_path(best_route)
+        self.update_robot_position(robot.path)
+        self.create_table()  # Actualizar laberinto en la interfaz
+        print("Mejor ruta completada.\n")
+
+        # Restablecer la posición del robot para la siguiente ruta
+        robot.reset_position()
 
     def clear_path(self):
         """ Limpiar la ruta pintada en el canvas """
@@ -291,7 +310,7 @@ class Maze():
 
             # Retraso para visualizar el movimiento
             self.root.update()
-            self.root.after(500)  # Espera de 500ms entre movimientos
+            self.root.after(1)  # Espera de 500ms entre movimientos
 
     def mark_cell(self, position, color='lightblue'):
         """Marcar una celda con un color específico para indicar el rastro"""
