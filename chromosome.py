@@ -8,8 +8,9 @@ class Chromosome:
 
     def create_individual(self):
         # Genera un cromosoma con 6 alelos, cada uno con un valor entre 1 y 4
-        return {"chromosome": [random.randint(1, 4) for _ in range(6)], "fitness_total": 0}
+        return [random.randint(1, 4) for _ in range(6)]
 
     def create_population(self):
         # Crea una población con el número de individuos especificado
         return [self.create_individual() for _ in range(self.n_individuals)]
+    
