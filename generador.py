@@ -67,7 +67,7 @@ class MultiPoblation:
             poblation = Poblation(random.randint(1,max_number_cromosomes))
             poblation.construction_poblation(max_number_gens)
             poblation.draft_poblation()
-        print("\n")
+            print("\n")
 
 
 
