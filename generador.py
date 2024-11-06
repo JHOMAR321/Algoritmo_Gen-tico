@@ -38,9 +38,9 @@ class Poblation:
         self.number_cromosomes = number_cromosomes
         self.total_cromosomes = []
     
-    def construction_poblation (self):
+    def construction_poblation (self,max_number_gens):
         for _ in range(self.number_cromosomes):
-            cromosome = Cromosome(random.randint(1,6))
+            cromosome = Cromosome(random.randint(1,max_number_gens))
             cromosome.construction_cromosome()
             self.total_cromosomes.append(cromosome)
 
@@ -62,10 +62,10 @@ class MultiPoblation:
         self.number_poblation = number_poblation
 
 #generar conjunto de poblaciones
-    def generate_poblations (self):
+    def generate_poblations (self,max_number_cromosomes,max_number_gens):
         for _ in range(self.number_poblation):
-            poblation = Poblation(random.randint(1,10))
-            poblation.construction_poblation()
+            poblation = Poblation(random.randint(1,max_number_cromosomes))
+            poblation.construction_poblation(max_number_gens)
             poblation.draft_poblation()
         print("\n")
 
@@ -73,7 +73,7 @@ class MultiPoblation:
 
 #Pruebas de ejecucion
 poblaciones = MultiPoblation(5)
-poblaciones.generate_poblations()
+poblaciones.generate_poblations(10,6)
 #generate_poblations(random.randint(1,5))
 #invocacion de la poblacion y su metodo de construccion
 #poblacion = Poblation(random.randint(1,10)) # conjunto de cromosomas 
