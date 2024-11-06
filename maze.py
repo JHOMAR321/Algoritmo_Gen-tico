@@ -20,6 +20,8 @@ class Maze():
         self.root.title("Maze Generator")
         self.canvas = None
         self.table = None
+        self.robot_pos = None
+        self.goal_pos = None
 
     def create_array_object(self, num_objects):
         """ Create array with the objects by placing a 
@@ -47,7 +49,7 @@ class Maze():
     def create_canva(self):
         """ Create the canvas where the maze and the table will be housed
         """
-        # Borrar el canvas existente antes de crear uno nuevo
+        # Delete the existing canvas before creating a new one
         if self.canvas:
             self.canvas.destroy()
 
@@ -73,10 +75,27 @@ class Maze():
                     self.canvas.create_rectangle(
                         x1, y1, x2, y2, fill='white', outline='gray')
 
+        # Draw the robot (start) and goal (end) positions
+        if self.robot_pos:
+            x1 = self.robot_pos[1] * cell_size
+            y1 = self.robot_pos[0] * cell_size
+            x2 = x1 + cell_size
+            y2 = y1 + cell_size
+            self.canvas.create_oval(
+                x1, y1, x2, y2, fill='green', outline='black')
+
+        if self.goal_pos:
+            x1 = self.goal_pos[1] * cell_size
+            y1 = self.goal_pos[0] * cell_size
+            x2 = x1 + cell_size
+            y2 = y1 + cell_size
+            self.canvas.create_oval(
+                x1, y1, x2, y2, fill='red', outline='black')
+
     def create_table(self):
         """ Create the table where the headers are written
         """
-        # Borrar la tabla existente antes de crear una nueva
+        # Drop the existing table before creating a new one
         if self.table:
             self.table.destroy()
 
@@ -111,19 +130,36 @@ class Maze():
     def generate_maze_and_update(self):
         """ Generates the maze and updates the canvas and table
         """
-        # Obtener dimensiones desde las entradas de texto
+        # Getting dimensions from text inputs
         self.length_row = int(self.rows_entry.get())
         self.length_column = int(self.cols_entry.get())
 
-        # Reiniciar la matriz
+        # Reset the matrix
         self.matrix = [[0 for _ in range(self.length_column)]
                        for _ in range(self.length_row)]
 
-        # Crear obstáculos
+        # Create obstacles
         self.create_array_object(int(self.objects_entry.get()))
         self.generate_matrix()
 
-        # Crear o actualizar el canvas y la tabla
+        # Create or update the canvas and table
+        self.create_canva()
+        self.create_maze()
+        self.create_table()
+
+    def set_robot_and_goal(self):
+        """ Set the robot's starting position and the goal position
+        """
+        robot_row = int(self.robot_row_entry.get())
+        robot_col = int(self.robot_col_entry.get())
+        goal_row = int(self.goal_row_entry.get())
+        goal_col = int(self.goal_col_entry.get())
+
+        # Store the positions
+        self.robot_pos = (robot_row, robot_col)
+        self.goal_pos = (goal_row, goal_col)
+
+        # Redraw the maze with the updated positions
         self.create_canva()
         self.create_maze()
         self.create_table()
@@ -158,4 +194,33 @@ class Maze():
             self.root, text="Generate Maze", command=self.generate_maze_and_update)
         generate_button.grid(row=1, column=2, columnspan=2, pady=5)
 
+        # Labels and entries for robot and goal positions
+        label4 = tk.Label(self.root, text="Robot Start (Row, Column):")
+        label4.grid(row=2, column=0, padx=5, pady=5)
+
+        self.robot_row_entry = tk.Entry(self.root)
+        self.robot_row_entry.grid(row=2, column=1, padx=5, pady=5)
+        self.robot_row_entry.insert(0, "0")
+
+        self.robot_col_entry = tk.Entry(self.root)
+        self.robot_col_entry.grid(row=2, column=2, padx=5, pady=5)
+        self.robot_col_entry.insert(0, "0")
+
+        label5 = tk.Label(self.root, text="Goal Position (Row, Column):")
+        label5.grid(row=3, column=0, padx=5, pady=5)
+
+        self.goal_row_entry = tk.Entry(self.root)
+        self.goal_row_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.goal_row_entry.insert(0, "4")
+
+        self.goal_col_entry = tk.Entry(self.root)
+        self.goal_col_entry.grid(row=3, column=2, padx=5, pady=5)
+        self.goal_col_entry.insert(0, "4")
+
+        # Add the "Set Robot and Goal" button
+        set_positions_button = tk.Button(
+            self.root, text="Set Robot and Goal", command=self.set_robot_and_goal)
+        set_positions_button.grid(row=3, column=3, pady=5)
+
         self.root.mainloop()
+        
